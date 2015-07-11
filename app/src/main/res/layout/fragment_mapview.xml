@@ -14,4 +14,14 @@
         mapbox:mapid="mikezliu.mm4o1j45"
         mapbox:accessToken="pk.eyJ1IjoibWlrZXpsaXUiLCJhIjoiLUc0QjVKVSJ9.8wiO_mNGaS3HDKEOPa6AQw"/>
 
+    <ListView
+        android:id="@+id/list_view"
+        android:visibility="gone"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="@dimen/list_divider_height"
+        android:background="@color/white" />
+
 </RelativeLayout>

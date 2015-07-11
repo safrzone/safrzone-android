@@ -19,10 +19,14 @@ import com.safrzone.safrzone.controllers.BaseActivity;
 import com.safrzone.safrzone.models.ResultsModel;
 import com.safrzone.safrzone.services.MapBoxService;
 import com.safrzone.safrzone.services.NewSearchEvent;
+import com.safrzone.safrzone.services.SearchCompletedEvent;
 import com.safrzone.safrzone.services.ServiceConstants;
 import com.safrzone.safrzone.utils.IoC;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -104,9 +108,20 @@ public class BaseView {
                     .MapBoxGeoLookupResult>() {
                 @Override
                 public void success(MapBoxService.MapBoxGeoLookupResult result, Response response) {
+                    List<MapBoxService.MapBoxGeoLookupResultFeature> features = new ArrayList<>();
+
                     if (result != null && result.features != null) {
-                        
+                        for(MapBoxService.MapBoxGeoLookupResultFeature feature : result.features) {
+                            if (feature.center != null && feature.placeName != null) {
+                                features.add(feature);
+                            }
+                        }
                     }
+
+                    _resultsModel.results = features;
+
+                    SearchCompletedEvent event = new SearchCompletedEvent();
+                    _bus.post(event);
                 }
 
                 @Override
