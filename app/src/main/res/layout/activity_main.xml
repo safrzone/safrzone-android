@@ -4,12 +4,11 @@ android:id="@+id/drawer_layout"
 android:layout_width="match_parent"
 android:layout_height="match_parent">
 
-<fragment android:name="com.safrzone.safrzone.controllers.HistoryFragment"
-          android:id="@+id/image_results_fragment"
+<fragment android:name="com.safrzone.safrzone.controllers.MapViewFragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent" />
 
-<fragment android:name="com.safrzone.safrzone.controllers.MapViewFragment"
+<fragment android:name="com.safrzone.safrzone.controllers.HistoryFragment"
           android:id="@+id/drawer_fragment"
           android:layout_width="match_parent"
           android:layout_height="match_parent"

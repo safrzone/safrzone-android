@@ -46,8 +46,7 @@ public class BaseView {
         _actionBar = activity.getSupportActionBar();
 
         View view = View.inflate(context, R.layout.activity_main, null);
-        activity.setContentView(R.layout.activity_main);
-
+        activity.setContentView(view);
         ButterKnife.bind(this, view);
 
         _actionBar.setDisplayHomeAsUpEnabled(true);
@@ -61,13 +60,13 @@ public class BaseView {
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 updateTitle();
-                ((ActionBarActivity) context).invalidateOptionsMenu();
+                ((AppCompatActivity) context).invalidateOptionsMenu();
             }
 
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 updateTitle();
-                ((ActionBarActivity) context).invalidateOptionsMenu();
+                ((AppCompatActivity) context).invalidateOptionsMenu();
             }
         };
 
@@ -133,5 +132,21 @@ public class BaseView {
 
     private boolean isDrawerOpen() {
         return _drawer.isDrawerOpen(_drawerSidebar);
+    }
+
+    public void onPrepareOptionsMenu(Menu menu) {
+        boolean drawerOpen = isDrawerOpen();
+        _searchMenuItem.setVisible(!drawerOpen);
+        if (drawerOpen) {
+            _searchMenuItem.collapseActionView();
+        }
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (_drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        return false;
     }
 }

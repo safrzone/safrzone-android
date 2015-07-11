@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.safrzone.safrzone.services.NewSearchEvent;
+import com.safrzone.safrzone.services.storage.HistoryContentProvider;
 import com.safrzone.safrzone.utils.IoC;
 import com.safrzone.safrzone.views.BaseView;
 import com.squareup.otto.Bus;
@@ -33,7 +35,7 @@ public class BaseActivity extends AppCompatActivity {
                 if (query != null && !query.isEmpty()) {
                     NewSearchEvent event = new NewSearchEvent(query);
                     _bus.post(event);
-                    /*HistoryContentProvider.insertQuery(query);*/
+                    HistoryContentProvider.insertQuery(query);
                 }
 
                 break;
@@ -50,7 +52,18 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        _view.onPrepareOptionsMenu(menu);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return _view.onCreateOptionsMenu(this, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return _view.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 }
