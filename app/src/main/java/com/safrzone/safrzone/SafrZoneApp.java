@@ -3,8 +3,11 @@ package com.safrzone.safrzone;
 import android.app.Application;
 import android.content.Context;
 
+import com.safrzone.safrzone.services.MapBoxService;
 import com.safrzone.safrzone.utils.IoC;
 import com.squareup.picasso.Picasso;
+
+import retrofit.RestAdapter;
 
 public class SafrZoneApp extends Application {
     private static SafrZoneApp instance;

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "23.0.0 rc2"
+    buildToolsVersion "23.0.0 rc3"
 
     defaultConfig {
         applicationId "com.safrzone.safrzone"
@@ -10,6 +10,10 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
     buildTypes {
         release {
@@ -35,3 +39,4 @@ dependencies {
     }
     compile 'com.squareup.retrofit:retrofit:1.9.0'
 }
+

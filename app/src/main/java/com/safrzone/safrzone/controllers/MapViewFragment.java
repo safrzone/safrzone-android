@@ -46,10 +46,5 @@ public class MapViewFragment
 
         _view.dispose();
     }
-
-    @Subscribe
-    public void eventSearchStarted(NewSearchEvent event) {
-        _resultsModel.setNewQuery(event.query);
-    }
 }
 

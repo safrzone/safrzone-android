@@ -37,6 +37,8 @@ public class HistoryView {
         _listView.setAdapter(_adapter);
         _listView.setOnItemClickListener(new ListViewItemClickListener());
 
+        _bus.register(this);
+
         return rootView;
     }
 
