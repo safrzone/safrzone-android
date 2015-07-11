@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">SafrZone</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <string name="drawer_open">Search History</string>
+    <string name="drawer_close">Map View</string>
+    <string name="history_fragment_title">Search History</string>
 </resources>
