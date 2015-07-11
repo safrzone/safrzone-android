@@ -104,7 +104,9 @@ public class BaseView {
                     .MapBoxGeoLookupResult>() {
                 @Override
                 public void success(MapBoxService.MapBoxGeoLookupResult result, Response response) {
-                    if (result != null && result.features != null)
+                    if (result != null && result.features != null) {
+                        
+                    }
                 }
 
                 @Override
