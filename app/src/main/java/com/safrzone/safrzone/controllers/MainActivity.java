@@ -1,9 +1,11 @@
-package com.safrzone.safrzone;
+package com.safrzone.safrzone.controllers;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.safrzone.safrzone.R;
 
 public class MainActivity extends AppCompatActivity {
 
