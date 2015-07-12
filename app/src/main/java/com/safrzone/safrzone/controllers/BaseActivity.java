@@ -4,25 +4,22 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.safrzone.safrzone.SafrZoneApp;
-import com.safrzone.safrzone.services.MapBoxService;
 import com.safrzone.safrzone.services.SafrZoneService;
 import com.safrzone.safrzone.services.ServiceConstants;
 import com.safrzone.safrzone.services.events.AndroidBus;
-import com.safrzone.safrzone.services.events.NewSearchEvent;
-import com.safrzone.safrzone.services.events.SearchCompletedEvent;
+import com.safrzone.safrzone.services.events.NewAutoCompleteSearchEvent;
 import com.safrzone.safrzone.services.events.ServerSyncCompletedEvent;
 import com.safrzone.safrzone.services.storage.HistoryContentProvider;
 import com.safrzone.safrzone.utils.IoC;
 import com.safrzone.safrzone.views.BaseView;
-import com.squareup.otto.Bus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
@@ -38,7 +35,7 @@ public class BaseActivity extends AppCompatActivity {
 
     private static final long SyncDelay = 2000;
     private Handler _handler = new Handler();
-    private Runnable _serverSync = new Runnable() {
+    private Runnable _serverSyncRunnable = new Runnable() {
         @Override
         public void run() {
             SafrZoneService service = new RestAdapter.Builder()
@@ -54,14 +51,14 @@ public class BaseActivity extends AppCompatActivity {
                     ServerSyncCompletedEvent event = new ServerSyncCompletedEvent(incidentResults);
                     _bus.post(event);
 
-                    _handler.postDelayed(_serverSync, SyncDelay);
+                    _handler.postDelayed(_serverSyncRunnable, SyncDelay);
                 }
 
                 @Override
                 public void failure(RetrofitError error) {
                     Log.e(TAG, "server sync failed");
 
-                    _handler.postDelayed(_serverSync, SyncDelay);
+                    _handler.postDelayed(_serverSyncRunnable, SyncDelay);
                 }
             });
         }
@@ -76,7 +73,7 @@ public class BaseActivity extends AppCompatActivity {
         _bus.register(this);
 
         // Start pull requests
-        _handler.postDelayed(_serverSync, SyncDelay);
+        _handler.postDelayed(_serverSyncRunnable, SyncDelay);
     }
 
     @Override protected void onNewIntent(Intent intent) {
@@ -85,9 +82,7 @@ public class BaseActivity extends AppCompatActivity {
             case Intent.ACTION_SEARCH: {
                 String query = intent.getStringExtra(SearchManager.QUERY);
                 if (query != null && !query.isEmpty()) {
-                    NewSearchEvent event = new NewSearchEvent(query);
-                    _bus.post(event);
-                    HistoryContentProvider.insertQuery(query);
+                    _view.openActionView(query);
                 }
 
                 break;
@@ -99,6 +94,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        _handler.removeCallbacks(_serverSyncRunnable);
         _bus.unregister(this);
         _view.dispose();
     }

@@ -10,12 +10,14 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.safrzone.safrzone.R;
 import com.safrzone.safrzone.services.events.AndroidBus;
-import com.safrzone.safrzone.services.events.NewSearchEvent;
+import com.safrzone.safrzone.services.events.GoToLngLatEvent;
+import com.safrzone.safrzone.services.events.NewAutoCompleteSearchEvent;
+import com.safrzone.safrzone.services.events.NewBackgroundAutoCompleteSearchEvent;
 import com.safrzone.safrzone.services.storage.StorageHelper;
 import com.safrzone.safrzone.utils.IoC;
-import com.squareup.otto.Bus;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -51,8 +53,10 @@ public class HistoryView {
         @Override public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Cursor cursor = (Cursor) _adapter.getItem(position);
             String query = cursor.getString(cursor.getColumnIndexOrThrow(StorageHelper.COLUMN_QUERY));
+            Double lat = cursor.getDouble(cursor.getColumnIndexOrThrow(StorageHelper.COLUMN_LAT));
+            Double lng = cursor.getDouble(cursor.getColumnIndexOrThrow(StorageHelper.COLUMN_LNG));
 
-            NewSearchEvent event = new NewSearchEvent(query);
+            GoToLngLatEvent event = new GoToLngLatEvent(query, new LatLng(lat, lng));
             _bus.post(event);
         }
     }

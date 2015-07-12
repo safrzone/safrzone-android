@@ -26,18 +26,15 @@ public class MapViewFragment
     private ResultsModel _resultsModel = IoC.resolve(ResultsModel.class);
     private MapView _view;
     private GpsLocationProvider mGpsLocationProvider;
-    private GeoSearchAutocompleteAdapter _adapter;
 
     private AndroidBus _bus = IoC.resolve(AndroidBus.class);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        _adapter = new GeoSearchAutocompleteAdapter(getActivity(), new ArrayList<MapBoxService.MapBoxGeoLookupResultFeature>());
         mGpsLocationProvider = new GpsLocationProvider(getActivity());
 
         // create view
-        _view = new MapView(mGpsLocationProvider, _adapter);
+        _view = new MapView(mGpsLocationProvider);
         View resultView = _view.onCreateView(inflater, container, savedInstanceState);
 
         // listen for events
@@ -52,13 +49,6 @@ public class MapViewFragment
         _bus.unregister(this);
 
         _view.dispose();
-    }
-
-    @Subscribe
-    public void onEventSearchCompleted(SearchCompletedEvent event) {
-        _adapter.clear();
-        _adapter.addAll(_resultsModel.results);
-        _adapter.notifyDataSetInvalidated();
     }
 }
 

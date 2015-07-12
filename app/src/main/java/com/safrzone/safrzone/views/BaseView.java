@@ -2,7 +2,10 @@ package com.safrzone.safrzone.views;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.database.MatrixCursor;
+import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,17 +16,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.safrzone.safrzone.R;
 import com.safrzone.safrzone.SafrZoneApp;
 import com.safrzone.safrzone.controllers.BaseActivity;
 import com.safrzone.safrzone.models.ResultsModel;
 import com.safrzone.safrzone.services.MapBoxService;
 import com.safrzone.safrzone.services.events.AndroidBus;
-import com.safrzone.safrzone.services.events.NewSearchEvent;
+import com.safrzone.safrzone.services.events.GoToLngLatEvent;
+import com.safrzone.safrzone.services.events.NewAutoCompleteSearchEvent;
+import com.safrzone.safrzone.services.events.NewBackgroundAutoCompleteSearchEvent;
 import com.safrzone.safrzone.services.events.SearchCompletedEvent;
 import com.safrzone.safrzone.services.ServiceConstants;
+import com.safrzone.safrzone.services.storage.HistoryContentProvider;
 import com.safrzone.safrzone.utils.IoC;
-import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -50,9 +56,11 @@ public class BaseView {
     private ResultsModel _resultsModel = IoC.resolve(ResultsModel.class);
     private AndroidBus _bus = IoC.resolve(AndroidBus.class);
     private MapBoxService _mapBoxService = IoC.resolve(MapBoxService.class);
+    private SimpleCursorAdapter busStopCursorAdapter;
+    private AppCompatActivity activity;
 
     public BaseView(final Context context) {
-        AppCompatActivity activity = (AppCompatActivity) context;
+        activity = (AppCompatActivity) context;
         _actionBar = activity.getSupportActionBar();
 
         View view = View.inflate(context, R.layout.activity_main, null);
@@ -93,14 +101,8 @@ public class BaseView {
     }
 
     @Subscribe
-    public void eventSearchStarted(NewSearchEvent event) {
-        _drawer.closeDrawers();
-        if (_searchMenuItem != null) _searchMenuItem.collapseActionView();
-        _resultsModel.setNewQuery(event.query);
-        updateTitle();
-
+    public void eventBackgroundSearchStarted(NewBackgroundAutoCompleteSearchEvent event) {
         if (!TextUtils.isEmpty(event.query)) {
-
             MapBoxService service = new RestAdapter.Builder()
                     .setEndpoint(ServiceConstants.MapBoxApiHost)
                     .build()
@@ -113,7 +115,55 @@ public class BaseView {
 
                     if (result != null && result.features != null) {
                         for(MapBoxService.MapBoxGeoLookupResultFeature feature : result.features) {
-                            if (feature.center != null && feature.placeName != null) {
+                            if (feature.center != null && feature.placeName != null && feature.center.size() == 2) {
+                                features.add(feature);
+                            }
+                        }
+                    }
+
+                    _resultsModel.results = features;
+
+                    SearchCompletedEvent event = new SearchCompletedEvent();
+                    _bus.post(event);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.e(TAG, "geo lookup failed");
+                }
+            });
+        }
+    }
+
+    @Subscribe
+    public void onEventGoToLngLatEvent(GoToLngLatEvent event) {
+        _drawer.closeDrawers();
+        if (_searchMenuItem != null) _searchMenuItem.collapseActionView();
+        _resultsModel.setNewQuery(event.query);
+        updateTitle();
+    }
+
+    @Subscribe
+    public void eventSearchStarted(NewAutoCompleteSearchEvent event) {
+        _drawer.closeDrawers();
+        if (_searchMenuItem != null) _searchMenuItem.collapseActionView();
+        _resultsModel.setNewQuery(event.query);
+        updateTitle();
+
+        if (!TextUtils.isEmpty(event.query)) {
+            MapBoxService service = new RestAdapter.Builder()
+                    .setEndpoint(ServiceConstants.MapBoxApiHost)
+                    .build()
+                    .create(MapBoxService.class);
+            service.geoLookup(ServiceConstants.AccessToken, event.query, new Callback<MapBoxService
+                    .MapBoxGeoLookupResult>() {
+                @Override
+                public void success(MapBoxService.MapBoxGeoLookupResult result, Response response) {
+                    List<MapBoxService.MapBoxGeoLookupResultFeature> features = new ArrayList<>();
+
+                    if (result != null && result.features != null) {
+                        for(MapBoxService.MapBoxGeoLookupResultFeature feature : result.features) {
+                            if (feature.center != null && feature.placeName != null && feature.center.size() == 2) {
                                 features.add(feature);
                             }
                         }
@@ -153,11 +203,104 @@ public class BaseView {
                 if(!queryTextFocused) {
                     _searchMenuItem.collapseActionView();
                     searchView.setQuery("", false);
+                    _resultsModel.results = null;
+                    updateSearchAutocompleteResults();
                 }
             }
         });
 
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (TextUtils.isEmpty(newText)) {
+                    _resultsModel.query = null;
+                    _resultsModel.results = null;
+                    updateSearchAutocompleteResults();
+                } else {
+                    _resultsModel.query = newText;
+                    NewBackgroundAutoCompleteSearchEvent event = new NewBackgroundAutoCompleteSearchEvent(newText);
+                    _bus.post(event);
+                }
+
+                return false;
+            }
+        });
+
+        // Set up SearchView auto-complete
+        updateSearchAutocompleteResults();
+
         return true;
+    }
+
+    @Subscribe public void onEventSearchCompletedEvent(SearchCompletedEvent event) {
+        updateSearchAutocompleteResults();
+    }
+
+    private void updateSearchAutocompleteResults() {
+        String[] columnNames = {"_id","text", "lng", "lat"};
+        MatrixCursor cursor = new MatrixCursor(columnNames);
+
+        MapBoxService.MapBoxGeoLookupResultFeature[] array;
+
+        if (_resultsModel.results == null) {
+            array = new MapBoxService.MapBoxGeoLookupResultFeature[0];
+        } else {
+            array = new MapBoxService.MapBoxGeoLookupResultFeature[_resultsModel.results.size()];
+            for (int i = 0; i < _resultsModel.results.size(); i++) {
+                array[i] = _resultsModel.results.get(i);
+            }
+        }
+
+        String[] temp = new String[4];
+        int id = 0;
+        for(MapBoxService.MapBoxGeoLookupResultFeature item : array){
+            temp[0] = Integer.toString(id++);
+            temp[1] = item.placeName;
+            temp[2] = item.center.get(0).toString();
+            temp[3] = item.center.get(1).toString();
+            cursor.addRow(temp);
+        }
+        String[] from = {"text"};
+        int[] to = {R.id.name};
+        busStopCursorAdapter = new SimpleCursorAdapter(activity, R.layout.item_searchresult, cursor, from, to);
+        searchView.setSuggestionsAdapter(busStopCursorAdapter);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                String selectedItem = (String)busStopCursorAdapter.getItem(position);
+                Log.v("search view", selectedItem);
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                MatrixCursor mc = (MatrixCursor)busStopCursorAdapter.getItem(position);
+                Log.e(TAG, "text: " + mc.getString(1));
+                String text = mc.getString(1);
+                Double lng = mc.getDouble(2);
+                Double lat = mc.getDouble(3);
+
+                HistoryContentProvider.insertQuery(text, lng, lat);
+                _actionBar.collapseActionView();
+
+                GoToLngLatEvent event = new GoToLngLatEvent(text, new LatLng(lat, lng));
+                _bus.post(event);
+
+                return false;
+            }
+        });
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                busStopCursorAdapter.notifyDataSetChanged();
+            }
+        }, 200);
     }
 
     private void updateTitle() {
@@ -192,5 +335,11 @@ public class BaseView {
         }
 
         return false;
+    }
+
+    public void openActionView(String query) {
+        searchView.setIconified(false);
+        searchView.setIconified(true);
+        searchView.setQuery(query, false);
     }
 }

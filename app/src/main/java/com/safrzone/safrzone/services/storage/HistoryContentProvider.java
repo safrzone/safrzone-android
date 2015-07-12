@@ -67,9 +67,11 @@ public class HistoryContentProvider extends ContentProvider {
         throw new UnsupportedOperationException();
     }
 
-    public static void insertQuery(String query) {
+    public static void insertQuery(String query, Double lng, Double lat) {
         ContentValues values = new ContentValues();
         values.put(StorageHelper.COLUMN_QUERY, query);
+        values.put(StorageHelper.COLUMN_LNG, lng);
+        values.put(StorageHelper.COLUMN_LAT, lat);
         SafrZoneApp.getContext().getContentResolver().insert(CONTENT_URI, values);
     }
 }

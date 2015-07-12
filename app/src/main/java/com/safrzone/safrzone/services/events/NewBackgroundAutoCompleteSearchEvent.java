@@ -1,9 +1,9 @@
 package com.safrzone.safrzone.services.events;
 
-public class NewSearchEvent {
+public class NewBackgroundAutoCompleteSearchEvent {
     public final String query;
 
-    public NewSearchEvent(String query) {
+    public NewBackgroundAutoCompleteSearchEvent(String query) {
         this.query = query;
     }
 }

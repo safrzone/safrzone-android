@@ -17,6 +17,7 @@ import com.safrzone.safrzone.models.ResultsModel;
 import com.safrzone.safrzone.services.MapBoxService;
 import com.safrzone.safrzone.services.SafrZoneService;
 import com.safrzone.safrzone.services.events.AndroidBus;
+import com.safrzone.safrzone.services.events.GoToLngLatEvent;
 import com.safrzone.safrzone.services.events.SearchCompletedEvent;
 import com.safrzone.safrzone.services.events.ServerSyncCompletedEvent;
 import com.safrzone.safrzone.utils.IoC;
@@ -31,16 +32,14 @@ import butterknife.ButterKnife;
 public class MapView {
 
     @Bind(R.id.mapview) com.mapbox.mapboxsdk.views.MapView mMapView;
-    @Bind(R.id.list_view) ListView mListView;
+    /*@Bind(R.id.list_view) ListView mListView;*/
 
     private AndroidBus _bus = IoC.resolve(AndroidBus.class);
     private ResultsModel _resultsModel = IoC.resolve(ResultsModel.class);
     private GpsLocationProvider mGpsLocationProvider;
-    private GeoSearchAutocompleteAdapter mAutocompleteAdapter;
 
-    public MapView(GpsLocationProvider gpsLocationProvider, GeoSearchAutocompleteAdapter adapter) {
+    public MapView(GpsLocationProvider gpsLocationProvider) {
         mGpsLocationProvider = gpsLocationProvider;
-        mAutocompleteAdapter = adapter;
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,7 +57,7 @@ public class MapView {
 
         mMapView.setUserLocationEnabled(true);
 
-        mListView.setAdapter(mAutocompleteAdapter);
+        /*mListView.setAdapter(mAutocompleteAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -68,21 +67,26 @@ public class MapView {
                 mMapView.setCenter(new LatLng(lat, lng));
                 mListView.setVisibility(View.GONE);
             }
-        });
+        });*/
 
         _bus.register(this);
 
         return view;
     }
 
+    @Subscribe
+    public void onEventGoToLngLatEvent(GoToLngLatEvent event) {
+        mMapView.setCenter(event.latLng);
+    }
+
     public void dispose() {
         _bus.unregister(this);
     }
 
-    @Subscribe
+    /*@Subscribe
     public void onEventSearchCompleted(SearchCompletedEvent event) {
         mListView.setVisibility(View.VISIBLE);
-    }
+    }*/
 
     @Subscribe
     public void onEventServerSyncCompleted(ServerSyncCompletedEvent event) {

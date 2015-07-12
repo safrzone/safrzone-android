@@ -12,10 +12,14 @@ public class StorageHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "_id";
     public static final String TABLE_HISTORY = "history";
     public static final String COLUMN_QUERY = "query";
+    public static final String COLUMN_LNG = "lng";
+    public static final String COLUMN_LAT = "lat";
 
     private static final String CREATE_TABLE_HISTORY = "create table " + TABLE_HISTORY + "("
             + COLUMN_ID + " integer primary key autoincrement, "
-            + COLUMN_QUERY + " TEXT"
+            + COLUMN_QUERY + " TEXT,"
+            + COLUMN_LNG + " TEXT,"
+            + COLUMN_LAT + " TEXT"
             + ");";
 
     static {

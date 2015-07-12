@@ -41,7 +41,7 @@ public interface MapBoxService {
         public String placeName;
 
         @SerializedName("center")
-        public List<Double> center;
+        public List<Float> center;
     }
 }
 
