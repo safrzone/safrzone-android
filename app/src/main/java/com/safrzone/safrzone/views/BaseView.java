@@ -23,6 +23,7 @@ import com.safrzone.safrzone.controllers.BaseActivity;
 import com.safrzone.safrzone.models.ResultsModel;
 import com.safrzone.safrzone.services.MapBoxService;
 import com.safrzone.safrzone.services.events.AndroidBus;
+import com.safrzone.safrzone.services.events.CloseDrawerEvent;
 import com.safrzone.safrzone.services.events.GoToLngLatEvent;
 import com.safrzone.safrzone.services.events.NewAutoCompleteSearchEvent;
 import com.safrzone.safrzone.services.events.NewBackgroundAutoCompleteSearchEvent;
@@ -141,6 +142,7 @@ public class BaseView {
         if (_searchMenuItem != null) _searchMenuItem.collapseActionView();
         _resultsModel.setNewQuery(event.query);
         updateTitle();
+        _resultsModel.currentLocation = event.query;
     }
 
     @Subscribe
@@ -235,6 +237,10 @@ public class BaseView {
         updateSearchAutocompleteResults();
 
         return true;
+    }
+
+    @Subscribe public void onEventCloseDrawerEvent(CloseDrawerEvent event) {
+        _drawer.closeDrawers();
     }
 
     @Subscribe public void onEventSearchCompletedEvent(SearchCompletedEvent event) {

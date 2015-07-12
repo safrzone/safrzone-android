@@ -42,7 +42,7 @@ public class HistoryFragment
                 0);
 
         // create view
-        _view = new HistoryView(_historyAdapter);
+        _view = new HistoryView(getActivity(), _historyAdapter);
         View resultView = _view.onCreateView(inflater, container, savedInstanceState);
 
         // load data

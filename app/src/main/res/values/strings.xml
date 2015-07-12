@@ -3,7 +3,7 @@
 
     <string name="action_settings">Settings</string>
 
-    <string name="drawer_open">Search History</string>
+    <string name="drawer_open">SafrZone</string>
     <string name="drawer_close">Map View</string>
-    <string name="history_fragment_title">Search History</string>
+    <string name="history_fragment_title">SafrZone</string>
 </resources>

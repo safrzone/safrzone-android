@@ -35,8 +35,19 @@ public interface SafrZoneService {
         @SerializedName("location")
         public IncidentResultLocation location;
 
+        @SerializedName("landmark")
+        public String landmark;
+
+        @SerializedName("imageUrl")
+        public String imageUrl;
+
+        @SerializedName("src")
+        public String src;
+
         /*@SerializedName("features")
         public List<MapBoxGeoLookupResultFeature> features;*/
+
+        /*{"landmark":"Tenderloin","imageUrl":null,"src":"twitter"}]*/
     }
 
     class IncidentResultLocation {

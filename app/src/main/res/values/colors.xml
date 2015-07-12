@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="drawer_item_color">#fff</color>
-    <color name="drawer_background">#1976D2</color>
+    <color name="drawer_background">#80000000</color>
     <color name="search_item_color">#fff</color>
 </resources>

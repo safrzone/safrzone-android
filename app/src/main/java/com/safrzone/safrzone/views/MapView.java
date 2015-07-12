@@ -26,6 +26,9 @@ import com.safrzone.safrzone.utils.IoC;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -51,16 +54,17 @@ public class MapView {
         View view = inflater.inflate(R.layout.fragment_mapview, container, false);
         ButterKnife.bind(this, view);
 
-        LatLng location = new LatLng(12.9667, 77.5667);
+        LatLng location = new LatLng(37.77665106, -122.41651297);
         mMapView.setCenter(location);
-        mMapView.setZoom(9);
+        mMapView.setZoom(14);
+        _resultsModel.currentLocation = "San Francisco, 94103, California, United States";
 
-        UserLocationOverlay myLocationOverlay = new UserLocationOverlay(mGpsLocationProvider, mMapView);
+        /*UserLocationOverlay myLocationOverlay = new UserLocationOverlay(mGpsLocationProvider, mMapView);
         myLocationOverlay.enableMyLocation();
         myLocationOverlay.setDrawAccuracyEnabled(true);
         mMapView.getOverlays().add(myLocationOverlay);
 
-        mMapView.setUserLocationEnabled(true);
+        mMapView.setUserLocationEnabled(true);*/
 
         /*mListView.setAdapter(mAutocompleteAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -98,9 +102,6 @@ public class MapView {
         for(SafrZoneService.IncidentResult result : event.mIncidentResults) {
             if (!incidentsOnMap.contains(result.id) && result.location != null && result.location.lat != null &&
                     result.location.lng != null) {
-                Marker marker = new Marker(mMapView, result.type, "", new LatLng(result.location.lat, result.location
-                        .lng));
-
                 /*String[] icons = new String[] {
                   "police", "danger", "emergency-telephone"
                 };*/
@@ -109,10 +110,41 @@ public class MapView {
                         R.drawable.fb_pin, R.drawable.twitter_pin, R.drawable.twilio_pin
                 };
 
-                int value = icons[new Random().nextInt(icons.length)];
+                String[] titles = new String[] {
+                        "Facebook", "Twitter", "Twilio"
+                };
 
+                int index = 0;
+                for (int i = 0; i < titles.length; i++) {
+                    if (titles[i].equalsIgnoreCase(result.src)) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                int value = icons[index];
+                String socialSource = titles[index];
+
+                String dateString;
+                if (result.date <= 0) {
+                    Calendar cal = Calendar.getInstance();
+                    Date date = cal.getTime();
+                    SimpleDateFormat df2 = new SimpleDateFormat("hh:mm a MM/dd/yy");
+                    dateString = df2.format(date);
+                } else {
+                    Date date=new Date(value / 1000);
+                    SimpleDateFormat df2 = new SimpleDateFormat("hh:mm a MM/dd/yy");
+                    dateString = df2.format(date);
+                }
+
+                Marker marker = new Marker(mMapView, result.type, socialSource, new LatLng(result.location.lat, result
+                        .location
+                        .lng));
                 //marker.setIcon(new Icon(mContext, Icon.Size.LARGE, "", "3b5998"));
                 marker.setIcon(new Icon(mContext.getResources().getDrawable(value)));
+                marker.setSubDescription(dateString);
+                MapViewPopupWindow popup = new MapViewPopupWindow(mMapView, result.imageUrl);
+                marker.setToolTip(popup);
 
                 mMapView.addMarker(marker);
                 incidentsOnMap.add(result.id);
