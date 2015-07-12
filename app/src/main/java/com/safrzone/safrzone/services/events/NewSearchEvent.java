@@ -1,4 +1,4 @@
-package com.safrzone.safrzone.services;
+package com.safrzone.safrzone.services.events;
 
 public class NewSearchEvent {
     public final String query;

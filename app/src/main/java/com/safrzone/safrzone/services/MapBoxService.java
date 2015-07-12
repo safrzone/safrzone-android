@@ -33,7 +33,6 @@ public interface MapBoxService {
 
         @SerializedName("type")
         public String type;
-        // Feature
 
         @SerializedName("text")
         public String text;
@@ -42,8 +41,7 @@ public interface MapBoxService {
         public String placeName;
 
         @SerializedName("center")
-        public List<Float> center;
+        public List<Double> center;
     }
-
 }
 

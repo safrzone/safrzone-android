@@ -10,8 +10,8 @@ import com.mapbox.mapboxsdk.overlay.GpsLocationProvider;
 import com.safrzone.safrzone.controllers.adapters.GeoSearchAutocompleteAdapter;
 import com.safrzone.safrzone.models.ResultsModel;
 import com.safrzone.safrzone.services.MapBoxService;
-import com.safrzone.safrzone.services.NewSearchEvent;
-import com.safrzone.safrzone.services.SearchCompletedEvent;
+import com.safrzone.safrzone.services.events.AndroidBus;
+import com.safrzone.safrzone.services.events.SearchCompletedEvent;
 import com.safrzone.safrzone.utils.IoC;
 import com.safrzone.safrzone.views.MapView;
 import com.squareup.otto.Bus;
@@ -28,7 +28,7 @@ public class MapViewFragment
     private GpsLocationProvider mGpsLocationProvider;
     private GeoSearchAutocompleteAdapter _adapter;
 
-    private Bus _bus = IoC.resolve(Bus.class);
+    private AndroidBus _bus = IoC.resolve(AndroidBus.class);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

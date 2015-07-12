@@ -9,15 +9,21 @@ import android.widget.ListView;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.GpsLocationProvider;
+import com.mapbox.mapboxsdk.overlay.Marker;
 import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.safrzone.safrzone.R;
 import com.safrzone.safrzone.controllers.adapters.GeoSearchAutocompleteAdapter;
 import com.safrzone.safrzone.models.ResultsModel;
 import com.safrzone.safrzone.services.MapBoxService;
-import com.safrzone.safrzone.services.SearchCompletedEvent;
+import com.safrzone.safrzone.services.SafrZoneService;
+import com.safrzone.safrzone.services.events.AndroidBus;
+import com.safrzone.safrzone.services.events.SearchCompletedEvent;
+import com.safrzone.safrzone.services.events.ServerSyncCompletedEvent;
 import com.safrzone.safrzone.utils.IoC;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+
+import java.util.HashSet;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -27,7 +33,7 @@ public class MapView {
     @Bind(R.id.mapview) com.mapbox.mapboxsdk.views.MapView mMapView;
     @Bind(R.id.list_view) ListView mListView;
 
-    private Bus _bus = IoC.resolve(Bus.class);
+    private AndroidBus _bus = IoC.resolve(AndroidBus.class);
     private ResultsModel _resultsModel = IoC.resolve(ResultsModel.class);
     private GpsLocationProvider mGpsLocationProvider;
     private GeoSearchAutocompleteAdapter mAutocompleteAdapter;
@@ -57,8 +63,8 @@ public class MapView {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MapBoxService.MapBoxGeoLookupResultFeature result = mAutocompleteAdapter.getItem(position);
-                Float lng = result.center.get(0);
-                Float lat = result.center.get(1);
+                Double lng = result.center.get(0);
+                Double lat = result.center.get(1);
                 mMapView.setCenter(new LatLng(lat, lng));
                 mListView.setVisibility(View.GONE);
             }
@@ -77,4 +83,18 @@ public class MapView {
     public void onEventSearchCompleted(SearchCompletedEvent event) {
         mListView.setVisibility(View.VISIBLE);
     }
+
+    @Subscribe
+    public void onEventServerSyncCompleted(ServerSyncCompletedEvent event) {
+        for(SafrZoneService.IncidentResult result : event.mIncidentResults) {
+            if (!incidentsOnMap.contains(result.id)) {
+                Marker marker = new Marker(mMapView, result.type, "", new LatLng(result.location.lat, result.location
+                        .lng));
+                mMapView.addMarker(marker);
+                incidentsOnMap.add(result.id);
+            }
+        }
+    }
+
+    private final HashSet<Long> incidentsOnMap = new HashSet<>();
 }

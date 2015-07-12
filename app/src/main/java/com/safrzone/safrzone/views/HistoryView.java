@@ -11,7 +11,8 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.safrzone.safrzone.R;
-import com.safrzone.safrzone.services.NewSearchEvent;
+import com.safrzone.safrzone.services.events.AndroidBus;
+import com.safrzone.safrzone.services.events.NewSearchEvent;
 import com.safrzone.safrzone.services.storage.StorageHelper;
 import com.safrzone.safrzone.utils.IoC;
 import com.squareup.otto.Bus;
@@ -23,7 +24,7 @@ public class HistoryView {
     @Bind(R.id.list_view) ListView _listView;
 
     private ListAdapter _adapter;
-    private Bus _bus = IoC.resolve(Bus.class);
+    private AndroidBus _bus = IoC.resolve(AndroidBus.class);
 
     public HistoryView(SimpleCursorAdapter listAdapter) {
         _adapter = listAdapter;

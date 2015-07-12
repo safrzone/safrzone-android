@@ -18,8 +18,9 @@ import com.safrzone.safrzone.SafrZoneApp;
 import com.safrzone.safrzone.controllers.BaseActivity;
 import com.safrzone.safrzone.models.ResultsModel;
 import com.safrzone.safrzone.services.MapBoxService;
-import com.safrzone.safrzone.services.NewSearchEvent;
-import com.safrzone.safrzone.services.SearchCompletedEvent;
+import com.safrzone.safrzone.services.events.AndroidBus;
+import com.safrzone.safrzone.services.events.NewSearchEvent;
+import com.safrzone.safrzone.services.events.SearchCompletedEvent;
 import com.safrzone.safrzone.services.ServiceConstants;
 import com.safrzone.safrzone.utils.IoC;
 import com.squareup.otto.Bus;
@@ -47,7 +48,7 @@ public class BaseView {
     private MenuItem _searchMenuItem;
     private SearchView searchView;
     private ResultsModel _resultsModel = IoC.resolve(ResultsModel.class);
-    private Bus _bus = IoC.resolve(Bus.class);
+    private AndroidBus _bus = IoC.resolve(AndroidBus.class);
     private MapBoxService _mapBoxService = IoC.resolve(MapBoxService.class);
 
     public BaseView(final Context context) {
