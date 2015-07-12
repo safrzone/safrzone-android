@@ -126,15 +126,30 @@ public class MapView {
                 String socialSource = titles[index];
 
                 String dateString;
-                if (result.date <= 0) {
+                long dateValue = Long.parseLong(result.date);
+                if (dateValue <= 0) {
                     Calendar cal = Calendar.getInstance();
                     Date date = cal.getTime();
                     SimpleDateFormat df2 = new SimpleDateFormat("hh:mm a MM/dd/yy");
                     dateString = df2.format(date);
                 } else {
-                    Date date=new Date(value / 1000);
-                    SimpleDateFormat df2 = new SimpleDateFormat("hh:mm a MM/dd/yy");
-                    dateString = df2.format(date);
+                    Calendar c = Calendar.getInstance();
+
+                    c.set(Calendar.HOUR_OF_DAY, 0);
+                    c.set(Calendar.MINUTE, 0);
+                    c.set(Calendar.SECOND, 0);
+                    c.set(Calendar.MILLISECOND, 0);
+                    Date today = c.getTime();
+
+                    Date date=new Date(dateValue);
+
+                    if (date.before(today)) {
+                        SimpleDateFormat df2 = new SimpleDateFormat("h:mm a M/d/yy");
+                        dateString = df2.format(date);
+                    } else {
+                        SimpleDateFormat df2 = new SimpleDateFormat("h:mm a");
+                        dateString = df2.format(date);
+                    }
                 }
 
                 Marker marker = new Marker(mMapView, result.type, socialSource, new LatLng(result.location.lat, result

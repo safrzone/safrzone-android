@@ -30,7 +30,7 @@ public interface SafrZoneService {
         public String type;
 
         @SerializedName("date")
-        public long date;
+        public String date;
 
         @SerializedName("location")
         public IncidentResultLocation location;
