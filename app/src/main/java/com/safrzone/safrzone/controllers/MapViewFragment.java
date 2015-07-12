@@ -34,7 +34,7 @@ public class MapViewFragment
         mGpsLocationProvider = new GpsLocationProvider(getActivity());
 
         // create view
-        _view = new MapView(mGpsLocationProvider);
+        _view = new MapView(mGpsLocationProvider, getActivity());
         View resultView = _view.onCreateView(inflater, container, savedInstanceState);
 
         // listen for events

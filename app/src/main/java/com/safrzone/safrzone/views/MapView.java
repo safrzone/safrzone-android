@@ -1,5 +1,6 @@
 package com.safrzone.safrzone.views;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.ListView;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.GpsLocationProvider;
+import com.mapbox.mapboxsdk.overlay.Icon;
 import com.mapbox.mapboxsdk.overlay.Marker;
 import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.safrzone.safrzone.R;
@@ -25,6 +27,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.HashSet;
+import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -37,9 +40,11 @@ public class MapView {
     private AndroidBus _bus = IoC.resolve(AndroidBus.class);
     private ResultsModel _resultsModel = IoC.resolve(ResultsModel.class);
     private GpsLocationProvider mGpsLocationProvider;
+    private Context mContext;
 
-    public MapView(GpsLocationProvider gpsLocationProvider) {
+    public MapView(GpsLocationProvider gpsLocationProvider, Context context) {
         mGpsLocationProvider = gpsLocationProvider;
+        mContext = context;
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -91,9 +96,24 @@ public class MapView {
     @Subscribe
     public void onEventServerSyncCompleted(ServerSyncCompletedEvent event) {
         for(SafrZoneService.IncidentResult result : event.mIncidentResults) {
-            if (!incidentsOnMap.contains(result.id)) {
+            if (!incidentsOnMap.contains(result.id) && result.location != null && result.location.lat != null &&
+                    result.location.lng != null) {
                 Marker marker = new Marker(mMapView, result.type, "", new LatLng(result.location.lat, result.location
                         .lng));
+
+                /*String[] icons = new String[] {
+                  "police", "danger", "emergency-telephone"
+                };*/
+
+                int[] icons = new int[] {
+                        R.drawable.fb_pin, R.drawable.twitter_pin, R.drawable.twilio_pin
+                };
+
+                int value = icons[new Random().nextInt(icons.length)];
+
+                //marker.setIcon(new Icon(mContext, Icon.Size.LARGE, "", "3b5998"));
+                marker.setIcon(new Icon(mContext.getResources().getDrawable(value)));
+
                 mMapView.addMarker(marker);
                 incidentsOnMap.add(result.id);
             }
