@@ -34,7 +34,7 @@ import butterknife.ButterKnife;
 
 public class HistoryView {
     @Bind(R.id.list_view) ListView _listView;
-    @Bind(R.id.subscribeTextView) TextView _textView;
+    @Bind(R.id.subscribeButton) Button _button;
 
     private ListAdapter _adapter;
     private AndroidBus _bus = IoC.resolve(AndroidBus.class);
@@ -54,7 +54,7 @@ public class HistoryView {
         _listView.setAdapter(_adapter);
         _listView.setOnItemClickListener(new ListViewItemClickListener());
 
-        _textView.setOnClickListener(new View.OnClickListener() {
+        _button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(_context)

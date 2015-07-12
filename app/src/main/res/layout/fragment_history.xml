@@ -7,12 +7,17 @@
     android:orientation="vertical"
     android:background="@color/drawer_background" >
 
-    <TextView
-        android:id="@+id/subscribeTextView"
-        android:text="Subscribe to Location"
+    <Button
+        android:background="@null"
+        android:id="@+id/subscribeButton"
+        android:textAllCaps="false"
+        android:drawableLeft="@drawable/ic_dialog_email"
+        android:drawablePadding="10dp"
+        android:text="Subscribe to Incidents"
         android:textColor="@color/white"
         android:textSize="20sp"
-        android:layout_width="wrap_content"
+        android:gravity="left|center_vertical"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/list_item_vertical_padding"
         android:paddingBottom="@dimen/list_item_vertical_padding"

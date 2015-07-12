@@ -8,5 +8,5 @@
     <dimen name="list_divider_height">12dp</dimen>
     <dimen name="list_item_horizontal_padding">12dp</dimen>
     <dimen name="list_item_vertical_padding">6dp</dimen>
-    <dimen name="list_item_text_size">24sp</dimen>
+    <dimen name="list_item_text_size">18sp</dimen>
 </resources>
